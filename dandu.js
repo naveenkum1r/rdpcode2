@@ -4,7 +4,7 @@ const fs = require('fs')
 var cloudinary = require('cloudinary').v2
 var Zip = require('adm-zip')
 const md5File = require('md5-file')
-
+require('dotenv').config()
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD,
   api_key: process.env.CLOUDINARY_KEY,
