@@ -22,8 +22,8 @@ const sleep = (waitTimeInMs) => new Promise((resolve) => setTimeout(resolve, wai
 
 const url = process.env.MONGO_URI
 const dbname = 'dlldb'
+const client = new mongo(url, { useNewUrlParser: true, useUnifiedTopology: true })
 
-const client = new mongo(url)
 
 client.connect(function (url) {
   console.log('connected successfully to server')
