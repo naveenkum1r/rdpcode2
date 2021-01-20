@@ -50,7 +50,12 @@ client.connect(function (url) {
             })
             console.log('download complete')
             let file_name = result[i].files[j].md5 + '.zip'
+            try{
             var zip = new Zip(body.data)
+            }
+            catch(err){
+              process.exit()
+            }
             zip.deleteFile('readme.txt')
             zip.deleteFile('DLL4free.com.url')
             zip.writeZip(file_name)
