@@ -42,8 +42,8 @@ client.connect(function (url) {
         for (var j = 0; j < result[i].files.length; j++) {
           console.log('current version is: ' + result[i].files[j].version)
           if (!result[i].files[j].download_link.includes('cloudinary')) {
-            console.log('found link without cloudinary and sleeping for 5 sec')
-            await sleep(3000)
+            console.log('found link without cloudinary and sleeping for 1 sec')
+            await sleep(1000)
             console.log('now downloading')
             const body = await axios.get(result[i].files[j].download_link, {
               responseType: 'arraybuffer',
