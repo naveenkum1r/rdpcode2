@@ -37,7 +37,7 @@ client.connect(function (url) {
       if (err) throw err
 
       console.log('collection found')
-      for (var i = result.length; i > 0; i--) {
+      for (var i = result.length-1; i > 0; i--) {
         console.log('current dll is: ' + result[i].file_name + ' at number ' + i)
         for (var j = 0; j < result[i].files.length; j++) {
           console.log('current version is: ' + result[i].files[j].version)
