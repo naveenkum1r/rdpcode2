@@ -24,7 +24,6 @@ const url = process.env.MONGO_URI
 const dbname = 'dlldb'
 const client = new mongo(url, { useNewUrlParser: true, useUnifiedTopology: true })
 
-
 client.connect(function (url) {
   console.log('connected successfully to server')
   const db = client.db(dbname)
@@ -41,19 +40,17 @@ client.connect(function (url) {
         console.log('current dll is: ' + result[i].file_name + ' at number ' + i)
         for (var j = 0; j < result[i].files.length; j++) {
           console.log('current version is: ' + result[i].files[j].version)
-          if (!result[i].files[j].download_link.includes('cloudinary')) {
+          if (!result[i].files[j].download_link.includes('cloudinary') && result[i].files[j].size) {
             console.log('found link without cloudinary and sleeping for 1 sec')
-            await sleep(1000)
             console.log('now downloading')
             const body = await axios.get(result[i].files[j].download_link, {
               responseType: 'arraybuffer',
             })
             console.log('download complete')
             let file_name = result[i].files[j].md5 + '.zip'
-            try{
-            var zip = new Zip(body.data)
-            }
-            catch(err){
+            try {
+              var zip = new Zip(body.data)
+            } catch (err) {
               process.exit()
             }
             zip.deleteFile('readme.txt')
