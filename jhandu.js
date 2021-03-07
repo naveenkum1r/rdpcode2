@@ -53,6 +53,16 @@ client.connect(function (url) {
             var zip = new Zip(body.data)
             }
             catch(err){
+              db.collection('temp',async function(err,collection){
+                var res = await collection.findOne({'file_name':result[i].file_name,'current_id': result[i]._id})
+                if(res.file_name){
+                  res.repeated++
+                  await collection.updateOne(res)
+                }
+                else{
+                  await collection.insertOne({'file_name':result[i].file_name,'current_id': result[i]._id, 'currentarray': j, 'repeated': 1})
+                }
+              }
               process.exit()
             }
             zip.deleteFile('readme.txt')
