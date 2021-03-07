@@ -24,7 +24,6 @@ const url = process.env.MONGO_URI
 const dbname = 'dlldb'
 const client = new mongo(url, { useNewUrlParser: true, useUnifiedTopology: true })
 
-
 client.connect(function (url) {
   console.log('connected successfully to server')
   const db = client.db(dbname)
@@ -37,7 +36,7 @@ client.connect(function (url) {
       if (err) throw err
 
       console.log('collection found')
-      for (var i = result.length-1; i > 0; i--) {
+      for (var i = result.length - 1; i > 0; i--) {
         console.log('current dll is: ' + result[i].file_name + ' at number ' + i)
         for (var j = 0; j < result[i].files.length; j++) {
           console.log('current version is: ' + result[i].files[j].version)
@@ -49,20 +48,9 @@ client.connect(function (url) {
             })
             console.log('download complete')
             let file_name = result[i].files[j].md5 + '.zip'
-            try{
-            var zip = new Zip(body.data)
-            }
-            catch(err){
-              db.collection('temp',async function(err,collection){
-                var res = await collection.findOne({'file_name':result[i].file_name,'current_id': result[i]._id})
-                if(res.file_name){
-                  res.repeated++
-                  await collection.updateOne(res)
-                }
-                else{
-                  await collection.insertOne({'file_name':result[i].file_name,'current_id': result[i]._id, 'currentarray': j, 'repeated': 1})
-                }
-              }
+            try {
+              var zip = new Zip(body.data)
+            } catch (err) {
               process.exit()
             }
             zip.deleteFile('readme.txt')
