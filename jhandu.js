@@ -40,7 +40,7 @@ client.connect(function (url) {
         console.log('current dll is: ' + result[i].file_name + ' at number ' + i)
         for (var j = 0; j < result[i].files.length; j++) {
           console.log('current version is: ' + result[i].files[j].version)
-          if (!result[i].files[j].download_link.includes('cloudinary')) {
+          if (!result[i].files[j].download_link.includes('cloudinary') && result[i].files[j].size) {
             console.log('found link without cloudinary and sleeping for 1 sec')
             console.log('now downloading')
             const body = await axios.get(result[i].files[j].download_link, {
