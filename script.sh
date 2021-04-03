@@ -7,4 +7,4 @@ sudo apt install nodejs
 } &> /dev/null &&
 printf "\nSetup Complete " >&2 ||
 printf "\nError Occured " >&2
-npm install request-promise cheerio fs
+npm install request request-promise cheerio fs
