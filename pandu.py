@@ -11,7 +11,7 @@ if statestart != 1:
   statestart = statestart
 else:
   statestart=1
-for p in range(0,len(states)-1):
+for p in range(0,len(states)):
   for j in range(statestart,100):    
         url1     = 'https://phones-calls.com/state-index/'+states[p]+'?page=' + str(j)
         response = requests.get(url1)
