@@ -31,6 +31,7 @@ async function processUrl(linkDocument, linksCollection) {
 
         // Save links to the database with crawled status as false
         for (const link of links) {
+            console.log(link)
             const existingLink = await linksCollection.findOne({ url: link });
             if (!existingLink) {
                 await linksCollection.insertOne({ url: link, crawled: false, downloaded: null });
@@ -85,9 +86,9 @@ async function main() {
         await client.connect();
         const database = client.db('db');
         const linksCollection = database.collection('links');
-
         let linkDocument;
         while (linkDocument = await linksCollection.findOne({ crawled: false })) {
+            console.log(linkDocument);
             await processUrl(linkDocument, linksCollection);
         }
 
