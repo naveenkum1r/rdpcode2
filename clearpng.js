@@ -73,6 +73,13 @@ async function processUrl(linkDocument, linksCollection) {
                 { $set: { crawled: true } }
             );
             console.log(`URL not found (404): ${inputUrl}`);
+        } else if (error.code === 'ERR_INVALID_URL') {
+            // Handle invalid URL error
+            await linksCollection.updateOne(
+                { _id: linkDocument._id },
+                { $set: { crawled: true } }
+            );
+            console.log(`Invalid URL: ${inputUrl}`);
         } else {
             console.error('Error:', error);
         }
