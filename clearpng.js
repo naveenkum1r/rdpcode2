@@ -17,59 +17,66 @@ async function processUrl(linkDocument, linksCollection) {
     const pathSegments = parsedUrl.pathname.split('/');
     const fileNamePart = pathSegments[pathSegments.length - 2];
 
-    const response = await axios.get(inputUrl);
-    const html = response.data;
+    try {
+        const response = await axios.get(inputUrl);
+        const html = response.data;
 
-    const dom = new JSDOM(html);
-    const document = dom.window.document;
+        const dom = new JSDOM(html);
+        const document = dom.window.document;
 
-    // Extract all links from the page
-    const links = Array.from(document.querySelectorAll('a'))
-        .map(anchor => anchor.href)
-        .filter(href => href.startsWith('http')); // Ensure they are absolute URLs
+        // Extract all links from the page
+        const links = Array.from(document.querySelectorAll('a'))
+            .map(anchor => anchor.href)
+            .filter(href => href.startsWith('http')); // Ensure they are absolute URLs
 
-    // Save links to the database with crawled status as false
-    for (const link of links) {
-        const existingLink = await linksCollection.findOne({ url: link });
-        if (!existingLink) {
-            await linksCollection.insertOne({ url: link, crawled: false, downloaded: null });
+        // Save links to the database with crawled status as false
+        for (const link of links) {
+            const existingLink = await linksCollection.findOne({ url: link });
+            if (!existingLink) {
+                await linksCollection.insertOne({ url: link, crawled: false, downloaded: null });
+            }
         }
-    }
 
-    // Update the initial link's status to crawled
-    await linksCollection.updateOne(
-        { _id: linkDocument._id },
-        { $set: { crawled: true } }
-    );
+        // Extract the dwagain variable if it exists
+        const scriptContent = Array.from(document.querySelectorAll('script'))
+            .map(script => script.textContent)
+            .join('\n');
 
-    // Extract the dwagain variable if it exists
-    const scriptContent = Array.from(document.querySelectorAll('script'))
-        .map(script => script.textContent)
-        .join('\n');
+        const dwagainMatch = scriptContent.match(/var\s+dwagain\s*=\s*['"]([^'"]+)['"]/);
+        let dwagain = null;
+        let downloaded = null;
+        if (dwagainMatch) {
+            dwagain = dwagainMatch[1];
+            downloaded = false; // Set downloaded to false if dwagain is found
+        }
 
-    const dwagainMatch = scriptContent.match(/var\s+dwagain\s*=\s*['"]([^'"]+)['"]/);
-    let dwagain = null;
-    let downloaded = null;
-    if (dwagainMatch) {
-        dwagain = dwagainMatch[1];
-        downloaded = false; // Set downloaded to false if dwagain is found
-    }
+        // Save the title of the page
+        const title = document.querySelector('title') ? document.querySelector('title').textContent : 'No Title';
 
-    // Save the title of the page
-    const title = document.querySelector('title') ? document.querySelector('title').textContent : 'No Title';
+        // Update the initial link document with dwagain, title, and downloaded status
+        await linksCollection.updateOne(
+            { _id: linkDocument._id },
+            { $set: { dwagain: dwagain, title: title, downloaded: downloaded, crawled: true } }
+        );
 
-    // Update the initial link document with dwagain, title, and downloaded status
-    await linksCollection.updateOne(
-        { _id: linkDocument._id },
-        { $set: { dwagain: dwagain, title: title, downloaded: downloaded } }
-    );
-
-    console.log(`Processed URL: ${inputUrl}`);
-    console.log(`Title: ${title}`);
-    if (dwagain) {
-        console.log(`dwagain: ${dwagain}`);
-    } else {
-        console.log('dwagain variable not found.');
+        console.log(`Processed URL: ${inputUrl}`);
+        console.log(`Title: ${title}`);
+        if (dwagain) {
+            console.log(`dwagain: ${dwagain}`);
+        } else {
+            console.log('dwagain variable not found.');
+        }
+    } catch (error) {
+        if (error.response && error.response.status === 404) {
+            // Update the initial link's status to crawled if 404 error occurs
+            await linksCollection.updateOne(
+                { _id: linkDocument._id },
+                { $set: { crawled: true } }
+            );
+            console.log(`URL not found (404): ${inputUrl}`);
+        } else {
+            console.error('Error:', error);
+        }
     }
 }
 
