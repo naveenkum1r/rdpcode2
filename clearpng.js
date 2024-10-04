@@ -27,7 +27,7 @@ async function processUrl(linkDocument, linksCollection) {
         // Extract all links from the page
         const links = Array.from(document.querySelectorAll('a'))
             .map(anchor => anchor.href)
-            .filter(href => href.startsWith('http')); // Ensure they are absolute URLs
+            .map(href => href.startsWith('http') ? href : `https://www.cleanpng.com${href}`); // Prepend base URL if not absolute
 
         // Save links to the database with crawled status as false
         for (const link of links) {
