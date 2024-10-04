@@ -24,14 +24,12 @@ async function processUrl(linkDocument, linksCollection) {
         const dom = new JSDOM(html);
         const document = dom.window.document;
 
-        // Extract all links from the page
+        // Extract and save all links from the page
         const links = Array.from(document.querySelectorAll('a'))
             .map(anchor => anchor.href)
             .map(href => href.startsWith('http') ? href : `https://www.cleanpng.com${href}`); // Prepend base URL if not absolute
 
-        // Save links to the database with crawled status as false
         for (const link of links) {
-            console.log(link)
             const existingLink = await linksCollection.findOne({ url: link });
             if (!existingLink) {
                 await linksCollection.insertOne({ url: link, crawled: false, downloaded: null });
